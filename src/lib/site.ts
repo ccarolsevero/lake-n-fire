@@ -20,11 +20,11 @@ export const SITE = {
 export const HOURS = [
   { day: "Segunda", lunch: "Fechado", dinner: "Fechado", closed: true },
   { day: "Terça", lunch: "Fechado", dinner: "Fechado", closed: true },
-  { day: "Quarta", lunch: "11h30 às 14h30", dinner: "18h às 23h" },
-  { day: "Quinta", lunch: "11h30 às 14h30", dinner: "18h às 23h" },
-  { day: "Sexta", lunch: "11h30 às 14h30", dinner: "18h às 23h" },
-  { day: "Sábado", lunch: "12h às 23h", dinner: "" },
-  { day: "Domingo", lunch: "12h às 16h", dinner: "" },
+  { day: "Quarta", lunch: "11h30 às 14h30", dinner: "18h às 23h", closed: false },
+  { day: "Quinta", lunch: "11h30 às 14h30", dinner: "18h às 23h", closed: false },
+  { day: "Sexta", lunch: "11h30 às 14h30", dinner: "18h às 23h", closed: false },
+  { day: "Sábado", lunch: "12h às 23h", dinner: "", closed: false },
+  { day: "Domingo", lunch: "12h às 16h", dinner: "", closed: false },
 ] as const;
 
 export function formatPrice(value: number) {

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { registerCustomerAction } from "@/lib/actions";
 
-export default function CadastroPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+function CadastroForm() {
+  const error = useSearchParams().get("error");
 
   return (
     <main className="pt-28 pb-20">
@@ -18,12 +18,7 @@ export default function CadastroPage() {
 
           <form
             className="mt-8 space-y-4 border border-ink/10 bg-paper p-6"
-            action={(formData) => {
-              startTransition(async () => {
-                const result = await registerCustomerAction(formData);
-                if (result && !result.ok) setError(result.error);
-              });
-            }}
+            action={registerCustomerAction}
           >
             <label className="block text-sm">
               Nome completo *
@@ -54,8 +49,8 @@ export default function CadastroPage() {
               <input name="confirm" type="password" required minLength={6} className="mt-1.5 h-11 w-full border border-ink/12 bg-cream px-3 outline-none focus:border-ember" />
             </label>
             {error ? <p className="text-sm text-ember">{error}</p> : null}
-            <button type="submit" disabled={pending} className="btn-primary w-full disabled:opacity-60">
-              {pending ? "Criando…" : "Criar conta"}
+            <button type="submit" className="btn-primary w-full">
+              Criar conta
             </button>
           </form>
           <p className="mt-4 text-sm text-bark/60">
@@ -67,5 +62,13 @@ export default function CadastroPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function CadastroPage() {
+  return (
+    <Suspense>
+      <CadastroForm />
+    </Suspense>
   );
 }

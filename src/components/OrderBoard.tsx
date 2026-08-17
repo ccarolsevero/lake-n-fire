@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { createOrderAction } from "@/lib/actions";
 import { formatPrice } from "@/lib/format";
 
@@ -40,8 +41,8 @@ export function OrderBoard({
 }) {
   const [channel, setChannel] = useState<"RESTAURANTE" | "EMPORIO">("RESTAURANTE");
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const error = useSearchParams().get("error");
 
   const categories = channel === "RESTAURANTE" ? restaurant : emporio;
 
@@ -151,9 +152,8 @@ export function OrderBoard({
               action={(formData) => {
                 formData.set("items", JSON.stringify(cart));
                 formData.set("channel", channel);
-                startTransition(async () => {
-                  const result = await createOrderAction(formData);
-                  if (result && !result.ok) setError(result.error);
+                startTransition(() => {
+                  void createOrderAction(formData);
                 });
               }}
             >

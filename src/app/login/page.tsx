@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useTransition } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { loginCustomerAction } from "@/lib/actions";
@@ -8,8 +8,7 @@ import { loginCustomerAction } from "@/lib/actions";
 function LoginForm() {
   const search = useSearchParams();
   const next = search.get("next") || "/pedidos";
-  const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const error = search.get("error");
 
   return (
     <main className="pt-28 pb-20">
@@ -21,12 +20,7 @@ function LoginForm() {
 
           <form
             className="mt-8 space-y-4 border border-ink/10 bg-paper p-6"
-            action={(formData) => {
-              startTransition(async () => {
-                const result = await loginCustomerAction(formData);
-                if (result && !result.ok) setError(result.error);
-              });
-            }}
+            action={loginCustomerAction}
           >
             <input type="hidden" name="next" value={next} />
             <label className="block text-sm">
@@ -38,8 +32,8 @@ function LoginForm() {
               <input name="password" type="password" required className="mt-1.5 h-11 w-full border border-ink/12 bg-cream px-3 outline-none focus:border-ember" />
             </label>
             {error ? <p className="text-sm text-ember">{error}</p> : null}
-            <button type="submit" disabled={pending} className="btn-primary w-full disabled:opacity-60">
-              {pending ? "Entrando…" : "Entrar"}
+            <button type="submit" className="btn-primary w-full">
+              Entrar
             </button>
           </form>
           <p className="mt-4 text-sm text-bark/60">

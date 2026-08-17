@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { loginAdminAction } from "@/lib/actions";
 
-export default function AdminLoginPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+function AdminLoginForm() {
+  const error = useSearchParams().get("error");
 
   return (
     <main className="flex min-h-svh items-center justify-center px-4">
@@ -16,15 +16,7 @@ export default function AdminLoginPage() {
         <h1 className="mt-3 font-display text-3xl font-medium">Entrar</h1>
         <p className="mt-2 text-sm text-bark/55">Acesso restrito à equipe Lake &apos;n Fire.</p>
 
-        <form
-          className="mt-8 space-y-4"
-          action={(formData) => {
-            startTransition(async () => {
-              const result = await loginAdminAction(formData);
-              if (result && !result.ok) setError(result.error);
-            });
-          }}
-        >
+        <form className="mt-8 space-y-4" action={loginAdminAction}>
           <label className="block text-sm">
             Usuário
             <input
@@ -45,11 +37,19 @@ export default function AdminLoginPage() {
             />
           </label>
           {error ? <p className="text-sm text-ember">{error}</p> : null}
-          <button type="submit" disabled={pending} className="btn-primary w-full disabled:opacity-60">
-            {pending ? "Entrando…" : "Entrar"}
+          <button type="submit" className="btn-primary w-full">
+            Entrar
           </button>
         </form>
       </div>
     </main>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

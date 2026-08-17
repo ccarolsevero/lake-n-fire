@@ -38,33 +38,38 @@ function digits(value: string) {
   return value.replace(/\D/g, "");
 }
 
-export async function loginAdminAction(formData: FormData) {
+function fail(path: string, error: string): never {
+  const sep = path.includes("?") ? "&" : "?";
+  redirect(`${path}${sep}error=${encodeURIComponent(error)}`);
+}
+
+export async function loginAdminAction(formData: FormData): Promise<void> {
   const user = String(formData.get("user") || "").trim();
   const password = String(formData.get("password") || "");
 
   if (!process.env.ADMIN_PASSWORD?.trim()) {
-    return { ok: false as const, error: "Login admin ainda não configurado." };
+    fail("/admin/login", "Login admin ainda não configurado.");
   }
 
   if (!verifyAdminCredentials(user, password)) {
-    return { ok: false as const, error: "Usuário ou senha inválidos." };
+    fail("/admin/login", "Usuário ou senha inválidos.");
   }
 
   await createAdminSession();
   redirect("/admin");
 }
 
-export async function logoutAdminAction() {
+export async function logoutAdminAction(): Promise<void> {
   await destroyAdminSession();
   redirect("/admin/login");
 }
 
-export async function logoutCustomerAction() {
+export async function logoutCustomerAction(): Promise<void> {
   await destroyCustomerSession();
   redirect("/");
 }
 
-export async function registerCustomerAction(formData: FormData) {
+export async function registerCustomerAction(formData: FormData): Promise<void> {
   const name = String(formData.get("name") || "").trim();
   const phone = String(formData.get("phone") || "").trim();
   const email = String(formData.get("email") || "").trim().toLowerCase();
@@ -74,21 +79,21 @@ export async function registerCustomerAction(formData: FormData) {
   const confirm = String(formData.get("confirm") || "");
 
   if (!name || !phone || !email || !address || !cpf || !password) {
-    return { ok: false as const, error: "Preencha todos os campos." };
+    fail("/cadastro", "Preencha todos os campos.");
   }
   if (cpf.length !== 11) {
-    return { ok: false as const, error: "CPF inválido." };
+    fail("/cadastro", "CPF inválido.");
   }
   if (password.length < 6) {
-    return { ok: false as const, error: "A senha precisa ter pelo menos 6 caracteres." };
+    fail("/cadastro", "A senha precisa ter pelo menos 6 caracteres.");
   }
   if (password !== confirm) {
-    return { ok: false as const, error: "As senhas não coincidem." };
+    fail("/cadastro", "As senhas não coincidem.");
   }
 
   const exists = await prisma.customer.findUnique({ where: { email } });
   if (exists) {
-    return { ok: false as const, error: "Já existe uma conta com este e-mail." };
+    fail("/cadastro", "Já existe uma conta com este e-mail.");
   }
 
   const customer = await prisma.customer.create({
@@ -106,21 +111,22 @@ export async function registerCustomerAction(formData: FormData) {
   redirect("/pedidos");
 }
 
-export async function loginCustomerAction(formData: FormData) {
+export async function loginCustomerAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const password = String(formData.get("password") || "");
   const next = String(formData.get("next") || "/pedidos");
+  const nextPath = next.startsWith("/") ? next : "/pedidos";
 
   const customer = await prisma.customer.findUnique({ where: { email } });
   if (!customer || !(await bcrypt.compare(password, customer.passwordHash))) {
-    return { ok: false as const, error: "E-mail ou senha inválidos." };
+    fail(`/login?next=${encodeURIComponent(nextPath)}`, "E-mail ou senha inválidos.");
   }
 
   await createCustomerSession(customer.id);
-  redirect(next.startsWith("/") ? next : "/pedidos");
+  redirect(nextPath);
 }
 
-export async function saveCategoryAction(formData: FormData) {
+export async function saveCategoryAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
@@ -128,8 +134,9 @@ export async function saveCategoryAction(formData: FormData) {
   const channel = String(formData.get("channel") || "RESTAURANTE") as Channel;
   const sortOrder = Number(formData.get("sortOrder") || 0);
   const slugInput = String(formData.get("slug") || "").trim();
+  const back = id ? `/admin/cardapio/${id}` : "/admin/cardapio/nova";
 
-  if (!title) return { ok: false as const, error: "Informe o nome da categoria." };
+  if (!title) fail(back, "Informe o nome da categoria.");
 
   const slug = slugify(slugInput || title);
   const data = { title, subtitle, channel, sortOrder, slug };
@@ -148,7 +155,7 @@ export async function saveCategoryAction(formData: FormData) {
   redirect("/admin/cardapio");
 }
 
-export async function deleteCategoryAction(formData: FormData) {
+export async function deleteCategoryAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = String(formData.get("id") || "");
   await prisma.category.delete({ where: { id } });
@@ -158,7 +165,7 @@ export async function deleteCategoryAction(formData: FormData) {
   redirect("/admin/cardapio");
 }
 
-export async function saveProductAction(formData: FormData) {
+export async function saveProductAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = String(formData.get("id") || "");
   const categoryId = String(formData.get("categoryId") || "");
@@ -170,9 +177,10 @@ export async function saveProductAction(formData: FormData) {
   const price = priceRaw === "" ? null : Number(priceRaw);
   const available = formData.get("available") === "on";
   const sortOrder = Number(formData.get("sortOrder") || 0);
+  const back = categoryId ? `/admin/cardapio/${categoryId}` : "/admin/cardapio";
 
   if (!name || !categoryId) {
-    return { ok: false as const, error: "Nome e categoria são obrigatórios." };
+    fail(back, "Nome e categoria são obrigatórios.");
   }
 
   const data = {
@@ -201,7 +209,7 @@ export async function saveProductAction(formData: FormData) {
   redirect(`/admin/cardapio/${categoryId}`);
 }
 
-export async function deleteProductAction(formData: FormData) {
+export async function deleteProductAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = String(formData.get("id") || "");
   const categoryId = String(formData.get("categoryId") || "");
@@ -212,7 +220,7 @@ export async function deleteProductAction(formData: FormData) {
   redirect(`/admin/cardapio/${categoryId}`);
 }
 
-export async function toggleProductAction(formData: FormData) {
+export async function toggleProductAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = String(formData.get("id") || "");
   const product = await prisma.product.findUnique({ where: { id } });
@@ -227,7 +235,7 @@ export async function toggleProductAction(formData: FormData) {
   revalidatePath("/pedidos");
 }
 
-export async function createOrderAction(formData: FormData) {
+export async function createOrderAction(formData: FormData): Promise<void> {
   const customerId = await getCustomerId();
   if (!customerId) {
     redirect("/login?next=/pedidos");
@@ -241,12 +249,12 @@ export async function createOrderAction(formData: FormData) {
   try {
     items = JSON.parse(rawItems);
   } catch {
-    return { ok: false as const, error: "Pedido inválido." };
+    fail("/pedidos", "Pedido inválido.");
   }
 
   items = items.filter((item) => item.qty > 0 && item.price != null);
   if (items.length === 0) {
-    return { ok: false as const, error: "Adicione itens ao pedido." };
+    fail("/pedidos", "Adicione itens ao pedido.");
   }
 
   const customer = await prisma.customer.findUnique({ where: { id: customerId } });
@@ -280,7 +288,7 @@ export async function createOrderAction(formData: FormData) {
   redirect("/conta?pedido=ok");
 }
 
-export async function updateOrderStatusAction(formData: FormData) {
+export async function updateOrderStatusAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = String(formData.get("id") || "");
   const status = String(formData.get("status") || "") as OrderStatus;
@@ -288,7 +296,7 @@ export async function updateOrderStatusAction(formData: FormData) {
   revalidatePath("/admin/pedidos");
 }
 
-export async function createReservationAction(formData: FormData) {
+export async function createReservationAction(formData: FormData): Promise<void> {
   const name = String(formData.get("nome") || "").trim();
   const phone = String(formData.get("telefone") || "").trim();
   const date = String(formData.get("data") || "").trim();
@@ -297,7 +305,7 @@ export async function createReservationAction(formData: FormData) {
   const notes = String(formData.get("obs") || "").trim();
 
   if (!name || !phone || !date || !time || partySize < 1) {
-    return { ok: false as const, error: "Preencha nome, telefone, data, horário e pessoas." };
+    fail("/reservas", "Preencha nome, telefone, data, horário e pessoas.");
   }
 
   const customerId = await getCustomerId();
@@ -319,7 +327,7 @@ export async function createReservationAction(formData: FormData) {
   redirect("/reservas?ok=1");
 }
 
-export async function updateReservationStatusAction(formData: FormData) {
+export async function updateReservationStatusAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = String(formData.get("id") || "");
   const status = String(formData.get("status") || "") as ReservationStatus;

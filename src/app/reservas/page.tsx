@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useTransition } from "react";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createReservationAction } from "@/lib/actions";
 import { SITE } from "@/lib/site";
@@ -8,8 +8,7 @@ import { SITE } from "@/lib/site";
 function ReservaForm() {
   const search = useSearchParams();
   const ok = search.get("ok") === "1";
-  const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const error = search.get("error");
 
   return (
     <main className="pt-24 pb-20">
@@ -37,12 +36,7 @@ function ReservaForm() {
 
           <form
             className="space-y-4 border border-ink/10 bg-paper p-6 sm:p-8"
-            action={(formData) => {
-              startTransition(async () => {
-                const result = await createReservationAction(formData);
-                if (result && !result.ok) setError(result.error);
-              });
-            }}
+            action={createReservationAction}
           >
             <label className="block text-sm">
               Nome completo
@@ -108,8 +102,8 @@ function ReservaForm() {
                 Reserva enviada. Aguarde a confirmação da casa.
               </p>
             ) : null}
-            <button type="submit" disabled={pending} className="btn-primary w-full disabled:opacity-60">
-              {pending ? "Enviando…" : "Enviar reserva"}
+            <button type="submit" className="btn-primary w-full">
+              Enviar reserva
             </button>
           </form>
         </div>

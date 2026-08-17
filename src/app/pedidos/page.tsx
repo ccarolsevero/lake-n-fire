@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { OrderBoard } from "@/components/OrderBoard";
 import { getCustomerId } from "@/lib/auth";
 import { getCatalog } from "@/lib/catalog";
@@ -28,11 +29,13 @@ export default async function PedidosPage() {
             Escolha entre o restaurante e o empório. Com a conta, o pedido entra
             na fila da casa.
           </p>
-          <OrderBoard
-            restaurant={restaurant}
-            emporio={emporio}
-            loggedIn={Boolean(customerId)}
-          />
+          <Suspense>
+            <OrderBoard
+              restaurant={restaurant}
+              emporio={emporio}
+              loggedIn={Boolean(customerId)}
+            />
+          </Suspense>
         </div>
       </div>
     </main>

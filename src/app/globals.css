@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+:root {
+  --cream: #f2ebe1;
+  --cream-deep: #e8dfd2;
+  --ink: #2b1e16;
+  --bark: #4a3020;
+  --ember: #c05d2d;
+  --rust: #c67d52;
+  --sand: #d4c4b0;
+  --paper: #f7f2ea;
+  --muted: rgba(43, 30, 22, 0.62);
+  --line: rgba(43, 30, 22, 0.14);
+  --background: var(--cream);
+  --foreground: var(--ink);
+}
+
+@theme inline {
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-ink: var(--ink);
+  --color-bark: var(--bark);
+  --color-ember: var(--ember);
+  --color-rust: var(--rust);
+  --color-sand: var(--sand);
+  --color-paper: var(--paper);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-montserrat);
+  --font-display: var(--font-cinzel);
+  --font-serif: var(--font-cinzel);
+  --font-hero: var(--font-cinzel);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+.hero-photo {
+  filter: brightness(0.92) contrast(0.82) saturate(0.68);
+}
+
+.hero-title {
+  font-family: var(--font-cinzel), "Times New Roman", serif;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.045em;
+  hyphens: none;
+  -webkit-hyphens: none;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+.font-display,
+.font-serif {
+  font-family: var(--font-cinzel), "Times New Roman", serif;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+
+.container-site {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1120px;
+}
+
+.section-pad {
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .section-pad {
+    padding-inline: 2rem;
+  }
+}
+
+.scallop {
+  --scallop: 14px;
+  mask-image: radial-gradient(var(--scallop) at 50% 100%, #0000 98%, #000);
+  mask-size: calc(var(--scallop) * 2) 100%;
+  mask-repeat: repeat-x;
+  mask-position: 0 calc(100% + var(--scallop));
+}
+
+.dotted-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.dotted-price::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px dotted rgba(43, 30, 22, 0.28);
+  transform: translateY(-4px);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding-inline: 1.25rem;
+  background: var(--ember);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #a84d24;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding-inline: 1.25rem;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: var(--ink);
+  color: var(--cream);
+}
+
+.nav-link {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(43, 30, 22, 0.72);
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link[data-active="true"] {
+  color: var(--ember);
+}

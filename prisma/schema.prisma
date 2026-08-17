@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Channel {
+  RESTAURANTE
+  EMPORIO
+}
+
+enum OrderStatus {
+  RECEBIDO
+  EM_PREPARO
+  PRONTO
+  ENTREGUE
+  CANCELADO
+}
+
+enum ReservationStatus {
+  PENDENTE
+  CONFIRMADA
+  CANCELADA
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  subtitle  String   @default("")
+  channel   Channel
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String
+  description String      @default("")
+  note        String      @default("")
+  portion     String      @default("")
+  price       Float?
+  available   Boolean     @default(true)
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+
+  @@index([categoryId])
+}
+
+model Customer {
+  id           String         @id @default(cuid())
+  name         String
+  phone        String
+  email        String         @unique
+  address      String
+  cpf          String
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  orders       Order[]
+  reservations Reservation[]
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  customerId    String?
+  customer      Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  channel       Channel
+  status        OrderStatus @default(RECEBIDO)
+  total         Float
+  notes         String      @default("")
+  customerName  String
+  customerPhone String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  items         OrderItem[]
+
+  @@index([customerId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name      String
+  price     Float
+  qty       Int
+
+  @@index([orderId])
+}
+
+model Reservation {
+  id         String            @id @default(cuid())
+  customerId String?
+  customer   Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  name       String
+  phone      String
+  date       String
+  time       String
+  partySize  Int
+  notes      String            @default("")
+  status     ReservationStatus @default(PENDENTE)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@index([status])
+  @@index([date])
+}

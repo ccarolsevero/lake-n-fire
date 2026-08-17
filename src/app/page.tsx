@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InstagramFeed } from "@/components/InstagramFeed";
 import { getCatalog } from "@/lib/catalog";
 import { HOURS, SITE } from "@/lib/site";
 
@@ -18,14 +19,14 @@ const DIFFERENTIALS = [
   {
     title: "Ambiente pet friendly",
     text: "Traga o seu melhor amigo. O deck e o jardim também são deles.",
-    image: "/meats.png",
-    alt: "Gravura de cortes de carne",
+    image: "/dog.png",
+    alt: "Gravura de um cachorro sentado",
   },
   {
     title: "Ingredientes selecionados",
     text: "Farm to table, fornecedores locais e produção artesanal do começo ao fim.",
-    image: "/bread.png",
-    alt: "Gravura de pão artesanal",
+    image: "/ingredients.png",
+    alt: "Gravura de ingredientes da horta",
   },
 ] as const;
 
@@ -129,12 +130,16 @@ export default function HomePage() {
               {DIFFERENTIALS.map((item) => (
                 <article
                   key={item.title}
-                  className="flex flex-col border border-ink/12 bg-cream px-5 py-6"
+                  className="flex flex-col overflow-visible border border-ink/12 bg-cream px-5 py-6"
                 >
                   <img
                     src={item.image}
                     alt={item.alt}
-                    className="mb-5 h-28 w-full object-contain mix-blend-multiply"
+                    className={
+                      item.image === "/pit-smoker.png"
+                        ? "mb-5 h-44 min-h-[11rem] w-full object-contain p-2 mix-blend-multiply"
+                        : "mb-5 h-36 w-full object-contain mix-blend-multiply"
+                    }
                   />
                   <h3 className="font-display text-xl font-medium leading-snug">
                     {item.title}
@@ -320,6 +325,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <InstagramFeed />
     </main>
   );
 }

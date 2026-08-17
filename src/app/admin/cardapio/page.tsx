@@ -1,13 +1,9 @@
 import Link from "next/link";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { deleteCategoryAction } from "@/lib/actions";
-import { prisma } from "@/lib/db";
+import { getCatalog } from "@/lib/catalog";
 
-export default async function AdminCardapioPage() {
-  const categories = await prisma.category.findMany({
-    orderBy: [{ channel: "asc" }, { sortOrder: "asc" }],
-    include: { _count: { select: { products: true } } },
-  });
+export default function AdminCardapioPage() {
+  const categories = getCatalog();
 
   return (
     <>
@@ -17,6 +13,9 @@ export default async function AdminCardapioPage() {
           <div>
             <p className="text-[0.7rem] tracking-[0.22em] text-ember uppercase">Cardápio</p>
             <h1 className="mt-2 font-display text-4xl font-medium">Categorias e produtos</h1>
+            <p className="mt-2 text-sm text-bark/55">
+              Leitura do cardápio estático. Edição volta com o banco.
+            </p>
           </div>
           <Link href="/admin/cardapio/nova" className="btn-primary">
             Nova categoria
@@ -32,26 +31,15 @@ export default async function AdminCardapioPage() {
                 </p>
                 <h2 className="font-display text-xl">{cat.title}</h2>
                 <p className="text-sm text-bark/55">
-                  {cat._count.products} itens · ordem {cat.sortOrder}
+                  {cat.products.length} itens
                 </p>
               </div>
-              <div className="flex gap-2">
-                <Link
-                  href={`/admin/cardapio/${cat.id}`}
-                  className="border border-ink/12 px-3 py-1.5 text-sm hover:border-ember"
-                >
-                  Editar
-                </Link>
-                <form action={deleteCategoryAction}>
-                  <input type="hidden" name="id" value={cat.id} />
-                  <button
-                    type="submit"
-                    className="border border-ink/12 px-3 py-1.5 text-sm text-bark/60 hover:border-ember hover:text-ember"
-                  >
-                    Excluir
-                  </button>
-                </form>
-              </div>
+              <Link
+                href={`/admin/cardapio/${cat.id}`}
+                className="border border-ink/12 px-3 py-1.5 text-sm hover:border-ember"
+              >
+                Ver
+              </Link>
             </div>
           ))}
         </div>

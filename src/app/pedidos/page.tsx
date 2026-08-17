@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { OrderBoard } from "@/components/OrderBoard";
-import { getCustomerId } from "@/lib/auth";
 import { getCatalog } from "@/lib/catalog";
 
 export const metadata = {
@@ -8,12 +7,9 @@ export const metadata = {
   description: "Peça o cardápio do restaurante ou os produtos do empório Lake 'n Fire.",
 };
 
-export default async function PedidosPage() {
-  const [restaurant, emporio, customerId] = await Promise.all([
-    getCatalog("RESTAURANTE"),
-    getCatalog("EMPORIO"),
-    getCustomerId(),
-  ]);
+export default function PedidosPage() {
+  const restaurant = getCatalog("RESTAURANTE");
+  const emporio = getCatalog("EMPORIO");
 
   return (
     <main className="pt-24 pb-28">
@@ -26,14 +22,14 @@ export default async function PedidosPage() {
             Monte o seu pedido
           </h1>
           <p className="mt-3 max-w-xl text-bark/70">
-            Escolha entre o restaurante e o empório. Com a conta, o pedido entra
-            na fila da casa.
+            Escolha entre o restaurante e o empório. O pedido abre o WhatsApp da
+            casa.
           </p>
           <Suspense>
             <OrderBoard
               restaurant={restaurant}
               emporio={emporio}
-              loggedIn={Boolean(customerId)}
+              loggedIn
             />
           </Suspense>
         </div>

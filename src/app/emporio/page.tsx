@@ -8,8 +8,8 @@ export const metadata = {
     "Leve o Lake para casa: molho barbecue, black rub, pastrami e linguiça artesanal.",
 };
 
-export default async function EmporioPage() {
-  const categories = await getCatalog("EMPORIO");
+export default function EmporioPage() {
+  const categories = getCatalog("EMPORIO");
 
   return (
     <main className="pt-24 pb-20">

@@ -29,8 +29,8 @@ const DIFFERENTIALS = [
   },
 ] as const;
 
-export default async function HomePage() {
-  const restaurant = await getCatalog("RESTAURANTE");
+export default function HomePage() {
+  const restaurant = getCatalog("RESTAURANTE");
   const preview = restaurant.filter((c) =>
     ["para-compartilhar", "parrilla", "defumados", "drinks"].includes(c.slug),
   );

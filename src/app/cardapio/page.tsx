@@ -8,8 +8,8 @@ export const metadata = {
     "Cardápio completo do Lake 'n Fire: para compartilhar, parrilla, defumados, massas, drinks e vinhos.",
 };
 
-export default async function CardapioPage() {
-  const categories = await getCatalog("RESTAURANTE");
+export default function CardapioPage() {
+  const categories = getCatalog("RESTAURANTE");
 
   return (
     <main className="pt-24 pb-20">

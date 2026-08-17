@@ -1,3 +1,5 @@
+import cachedFeed from "../../public/instagram/feed.json";
+
 export type InstagramPost = {
   id: string;
   permalink: string;
@@ -8,7 +10,7 @@ export type InstagramPost = {
 const HANDLE = "lakenfire_";
 const LIMIT = 6;
 const REVALIDATE = 1800;
-const TIMEOUT_MS = 12000;
+const TIMEOUT_MS = 5000;
 const IG_APP_ID = "936619743392459";
 const BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
@@ -181,6 +183,12 @@ async function fromRsshubJson(): Promise<InstagramPost[]> {
   return [];
 }
 
+function fromStaticCache(): InstagramPost[] {
+  return (cachedFeed as InstagramPost[])
+    .filter((post) => post.image?.startsWith("/instagram/"))
+    .slice(0, LIMIT);
+}
+
 export async function getInstagramPosts(): Promise<InstagramPost[]> {
   try {
     const token = process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
@@ -195,7 +203,7 @@ export async function getInstagramPosts(): Promise<InstagramPost[]> {
     const rss = await fromRsshubJson();
     if (rss.length) return withProxy(rss);
   } catch {
-    return [];
+    return fromStaticCache();
   }
-  return [];
+  return fromStaticCache();
 }
